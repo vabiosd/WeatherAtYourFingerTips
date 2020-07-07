@@ -13,6 +13,10 @@ import CoreLocation
 class ViewController: UIViewController {
 
     @IBOutlet weak var mapView: MKMapView!
+    let locationManager = CLLocationManager()
+    let authorizationStatus = CLLocationManager.authorizationStatus()
+    let regionRadius: Double = 1000
+    private var currentLocation: CLLocation?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -23,6 +27,7 @@ class ViewController: UIViewController {
         super.viewWillAppear(animated)
         
         setupDoubleTapGesture()
+        setupLocationManager()
     }
     
     func setupDoubleTapGesture() {
@@ -32,6 +37,18 @@ class ViewController: UIViewController {
         mapView.addGestureRecognizer(tapGesture)
     }
 
+    func setupLocationManager() {
+        mapView.delegate = self
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+
+        // Check for Location Services
+
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.requestWhenInUseAuthorization()
+            locationManager.startUpdatingLocation()
+        }
+    }
 
 }
 
@@ -44,5 +61,19 @@ extension ViewController: UIGestureRecognizerDelegate {
         self.navigationController?.pushViewController(detailViewController, animated: true)
     }
     
+}
+
+extension ViewController: CLLocationManagerDelegate, MKMapViewDelegate {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        defer { currentLocation = locations.last }
+
+        if currentLocation == nil {
+            // Zoom to user location
+            if let userLocation = locations.last {
+                let viewRegion = MKCoordinateRegion(center: userLocation.coordinate, latitudinalMeters: 50000, longitudinalMeters: 50000)
+                mapView.setRegion(viewRegion, animated: false)
+            }
+        }
+    }
 }
 
