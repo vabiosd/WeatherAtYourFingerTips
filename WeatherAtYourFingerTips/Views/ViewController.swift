@@ -56,9 +56,20 @@ extension ViewController: UIGestureRecognizerDelegate {
     @objc func getLocationAndWeather(_ gesture: UITapGestureRecognizer  ) {
         let tapLocation = gesture.location(in: mapView)
         let coordinates = mapView.convert(tapLocation, toCoordinateFrom: mapView)
-        let detailViewController = WeatherDetailViewController()
-        detailViewController.setupViewModel(location: coordinates)
-        self.navigationController?.pushViewController(detailViewController, animated: true)
+        let geoCoder = CLGeocoder()
+        let location = CLLocation(latitude: coordinates.latitude, longitude: coordinates.longitude)
+        geoCoder.reverseGeocodeLocation(location, completionHandler: {[weak self] placemarks, error -> Void in
+
+                // Place details
+                guard let placeMark = placemarks?.first else { return }
+                // City
+                if let city = placeMark.subAdministrativeArea {
+                    let detailViewController = WeatherDetailViewController()
+                    detailViewController.setupViewModel(city: city)
+                    self?.navigationController?.pushViewController(detailViewController, animated: true)
+                }
+        })
+        
     }
     
 }

@@ -24,9 +24,9 @@ class WeatherDetailViewModel {
     var windSpeed = ""
     var humidity = ""
     
-    func getWeatherData(location: CLLocationCoordinate2D) {
+    func getWeatherData(city: String) {
         // show loading
-        self.interactor.searchData(latitude: location.latitude.magnitude, longitude: location.longitude.magnitude) {[weak self] (error, weatherDetails) in
+        self.interactor.searchData(city: city) {[weak self] (error, weatherDetails) in
             guard let self = self else {
                 return
             }

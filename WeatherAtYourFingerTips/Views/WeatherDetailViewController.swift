@@ -37,7 +37,7 @@ class WeatherDetailViewController: UIViewController {
         setupLoadingIndicator()
     }
     
-    func setupViewModel(location: CLLocationCoordinate2D) {
+    func setupViewModel(city: String) {
         weatherDetailViewModel.reloadData = { [weak self] in
             DispatchQueue.main.async {
                 guard let self = self else {
@@ -65,7 +65,7 @@ class WeatherDetailViewController: UIViewController {
             }
         }
         
-        weatherDetailViewModel.getWeatherData(location: location)
+        weatherDetailViewModel.getWeatherData(city: city)
     }
     
     func setupLoadingIndicator() {
