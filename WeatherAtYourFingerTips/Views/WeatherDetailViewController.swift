@@ -7,8 +7,17 @@
 //
 
 import UIKit
+import MapKit
 
 class WeatherDetailViewController: UIViewController {
+    
+    @IBOutlet weak var iconImageView: CustomImageView!
+    @IBOutlet weak var cityName: UILabel!
+    @IBOutlet weak var descriptionLabel: UILabel!
+    @IBOutlet weak var temperatureLabel: UILabel!
+    @IBOutlet weak var minMaxTemperature: UILabel!
+    @IBOutlet weak var humidityLabel: UILabel!
+    @IBOutlet weak var windLabel: UILabel!
     
     let loadingIndicator: UIActivityIndicatorView = {
         let loadingView = UIActivityIndicatorView()
@@ -28,6 +37,37 @@ class WeatherDetailViewController: UIViewController {
         setupLoadingIndicator()
     }
     
+    func setupViewModel(location: CLLocationCoordinate2D) {
+        weatherDetailViewModel.reloadData = { [weak self] in
+            DispatchQueue.main.async {
+                guard let self = self else {
+                    return
+                }
+                self.removeLoadingView()
+                self.cityName.text = self.weatherDetailViewModel.cityName
+                self.iconImageView.loadImageAtUrl(urlString: self.weatherDetailViewModel.iconUrl) {
+                    self.iconImageView.isHidden = false
+                }
+                self.temperatureLabel.text = self.weatherDetailViewModel.temperatureString
+                self.descriptionLabel.text = self.weatherDetailViewModel.weatherDescriptionString
+                self.minMaxTemperature.text = self.weatherDetailViewModel.minMaxString
+                self.humidityLabel.text = self.weatherDetailViewModel.humidity
+                self.windLabel.text = self.weatherDetailViewModel.windSpeed
+            }
+        }
+        
+        weatherDetailViewModel.showError = { [weak self] errorMessage in
+            DispatchQueue.main.async {
+                self?.removeLoadingView()
+                let alert = UIAlertController(title: "Error", message: errorMessage, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Okay", style: .default, handler: nil))
+                self?.present(alert, animated: true, completion: nil)
+            }
+        }
+        
+        weatherDetailViewModel.getWeatherData(location: location)
+    }
+    
     func setupLoadingIndicator() {
         view.addSubview(loadingIndicator)
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
@@ -41,7 +81,7 @@ class WeatherDetailViewController: UIViewController {
     }
     
     func removeLoadingView() {
-        self.view.backgroundColor = .lightGray
-        loadingIndicator.startAnimating()
+        self.view.backgroundColor = .white
+        loadingIndicator.stopAnimating()
     }
 }

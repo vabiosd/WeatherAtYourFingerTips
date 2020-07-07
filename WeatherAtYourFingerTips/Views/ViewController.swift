@@ -39,7 +39,9 @@ extension ViewController: UIGestureRecognizerDelegate {
     @objc func getLocationAndWeather(_ gesture: UITapGestureRecognizer  ) {
         let tapLocation = gesture.location(in: mapView)
         let coordinates = mapView.convert(tapLocation, toCoordinateFrom: mapView)
-        weatherDetailViewModel.getWeatherData(location: coordinates)
+        let detailViewController = WeatherDetailViewController()
+        detailViewController.setupViewModel(location: coordinates)
+        self.navigationController?.pushViewController(detailViewController, animated: true)
     }
     
 }
